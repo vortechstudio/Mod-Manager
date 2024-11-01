@@ -1,0 +1,83 @@
+
+        <html>
+        <head>
+            <title>TF2 ModValidator Report</title>
+            <style>
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; width: 50%}
+                th { background-color: #f2f2f2; }
+                .info-box {
+                    border: 1px solid #ccc;
+                    padding: 15px;
+                    border-radius: 5px;
+                    background-color: #f9f9f9;
+                    margin-bottom: 20px;
+                }
+                .info-item {
+                    margin-bottom: 10px;
+                }
+                .label {
+                    font-weight: bold;
+                    color: #333;
+                }                
+            </style>
+        </head>
+        <body>        
+            <h2>TRANSPORT FEVER 2 - MOD VALIDATOR - REPORT</h2>
+            <h3>Summary</h3>
+            <div class="info-box">
+                <div class="info-item">
+                    <span class="label">Mod Directory:</span>
+                    <span>C:\Program Files (x86)\Steam\userdata\40645367\1066780\local\staging_area\asset_pdl_1</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Report Timestamp:</span>
+                    <span>31.10.2024 18:40:54</span>
+                </div>                
+                <div class="info-item">
+                    <span class="label">Validator Version:</span>
+                    <span>0.10.0</span>
+                </div> 
+                <div class="info-item">
+                    <span class="label">Total Failures:</span>
+                    <span>11</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Total Warnings:</span>
+                    <span>3</span>
+                </div>                                             
+            </div>        
+
+            <h3>Failure Details:</h3>
+            <table>
+<thead>
+<tr><th>File                                                           </th><th>Issues                                                                                                                                                           </th></tr>
+</thead>
+<tbody>
+<tr><td>res\textures\models\buildings\ancenis\gris.dds                 </td><td>- Invalid texture resolution: 100x100<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>  </td></tr>
+<tr><td>res\textures\models\buildings\ancenis\gris_clair.dds           </td><td>- Invalid texture resolution: 100x100<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>  </td></tr>
+<tr><td>res\textures\models\buildings\ancenis\gris_fonce.dds           </td><td>- Invalid texture resolution: 100x100<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>  </td></tr>
+<tr><td>res\textures\models\buildings\ancenis\orange.dds               </td><td>- Invalid texture resolution: 100x100<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>  </td></tr>
+<tr><td>res\textures\models\buildings\commun\blanc.dds                 </td><td>- Invalid texture resolution: 1x1<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>      </td></tr>
+<tr><td>res\textures\models\buildings\plouaret\clim.dds                </td><td>- Invalid texture resolution: 2000x1600<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br></td></tr>
+<tr><td>res\textures\models\buildings\plouaret\contour_fenetres.dds    </td><td>- Invalid texture resolution: 10x10<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>    </td></tr>
+<tr><td>res\textures\models\buildings\plouaret\gouttierres_blanches.dds</td><td>- Invalid texture resolution: 10x10<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>    </td></tr>
+<tr><td>res\textures\models\buildings\plouaret\gouttierres_grises.dds  </td><td>- Invalid texture resolution: 10x10<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>    </td></tr>
+<tr><td>res\textures\models\buildings\plouaret\gris_fonce_1.dds        </td><td>- Invalid texture resolution: 10x10<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>    </td></tr>
+<tr><td>res\textures\models\buildings\plouaret\gris_fonce_2.dds        </td><td>- Invalid texture resolution: 10x10<br>The width and height must be one of the following values: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, or 4096.<br>    </td></tr>
+</tbody>
+</table>
+            <h3>Warning Details:</h3>
+            <table>
+<thead>
+<tr><th>File                                          </th><th>Issues                                                                                                                                                </th></tr>
+</thead>
+<tbody>
+<tr><td>GuingampAM_lod0.fbx                           </td><td>- Unexpected file detected<br>The file may not be required for this mod. Please review file, ensure its correct location or remove if unnecessary.<br></td></tr>
+<tr><td>res\models\model\asset\gare\angers.mdl        </td><td>- LOD visibilty range: 17622.7265625<br>Please review LOD visiblity range for optimal performance.<br>                                                </td></tr>
+<tr><td>res\models\model\station\rail\ouest\quai_2.mdl</td><td>- LOD visibilty range: 2816.0556640625<br>Please review LOD visiblity range for optimal performance.<br>                                              </td></tr>
+</tbody>
+</table>
+        </body>
+        </html>
+        
