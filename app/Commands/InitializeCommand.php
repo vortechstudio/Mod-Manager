@@ -66,6 +66,8 @@ class InitializeCommand extends Command
         return [
             'staging_path' => $this->askForStagingPath(),
             'blender_path' => $this->askForBlenderPath(),
+            'lua_path' => getcwd().'/bin/lua/lua.exe',
+            'luac_path' => getcwd().'/bin/lua/luac.exe',
         ];
     }
 
