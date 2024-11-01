@@ -32,4 +32,15 @@ class Translator
 
         throw new Exception("Erreur lors de la traduction : ".$response->body());
     }
+
+    public function testApi()
+    {
+        $response = Http::withoutVerifying()->get("{$this->apiUrl}/fr/en/test+description");
+
+        if ($response->serverError()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

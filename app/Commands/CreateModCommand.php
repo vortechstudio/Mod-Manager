@@ -116,7 +116,7 @@ class CreateModCommand extends Command
 
     public function createModLuaFile(string $name_mod)
     {
-        $autors = text(
+        $authors = text(
             label: 'Quels sont les auteurs de votre mod? (séparez les auteurs par une virgule)',
         );
 
@@ -124,33 +124,39 @@ class CreateModCommand extends Command
             label: 'Quels sont les tags de votre mod? (séparez les tags par une virgule)',
         );
 
+        $this->task('Création du fichier mod.lua', function () use ($name_mod, $authors, $tags) {
+            // Transformation des auteurs en format Lua avec `name` et `role`
+            $authorsArray = array_map('trim', explode(',', $authors));
+            $authorsLua = implode(",\n                ", array_map(fn($author) => "{
+                        name = \"$author\",
+                        role = \"CREATOR\"
+                    }", $authorsArray));
+            $authorsLua = "authors = {\n                $authorsLua\n            },";
 
-        $this->task('Création du fichier Mod.lua', function () use ($name_mod, $autors, $tags) {
-            $authorsArray = array_map('trim', explode(',', $autors));
+            // Transformation des tags en tableau Lua
             $tagsArray = array_map('trim', explode(',', $tags));
+            $tagsLua = "tags = { \"" . implode('", "', $tagsArray) . "\" },";
 
-            $authorsLua = implode(", ", array_map(fn($author) => "\"$author\"", $authorsArray));
-            $tagsLua = implode(", ", array_map(fn($tag) => "\"$tag\"", $tagsArray));
-
+            // Génération du contenu de `mod.lua`
             $content = <<<LUA
 function data()
-   return {
+return {
         info = {
             minorVersion = 0,
             severityAdd = 'NONE',
             severityRemove = 'NONE',
             name = _("NAME_MOD"),
             description = _("DESC_MOD"),
-            authors = {$authorsLua},
-            tags = {$tagsLua},
+            $authorsLua
+            $tagsLua
             visible = true,
         }
     }
 end
 LUA;
-        $filePath = $this->staging_path.'/'.$name_mod.'/mod.lua';
-        return File::put($filePath, $content) !== false;
 
+            $filePath = $this->staging_path.'/'.$name_mod.'/mod.lua';
+            return File::put($filePath, $content) !== false;
         });
     }
 
@@ -162,14 +168,26 @@ LUA;
 
         $translator = new Translator();
 
-        $descriptionFR = $description;
-        $titleFR = $mod_title;
+        if($translator->testApi()) {
+            $descriptionFR = $description;
+            $titleFR = $mod_title;
 
-        $titleEN = $translator->translate($titleFR, 'fr', 'en');
-        $titleDE = $translator->translate($titleFR,'fr', 'de');
+            $titleEN = $translator->translate($titleFR, 'fr', 'en');
+            $titleDE = $translator->translate($titleFR,'fr', 'de');
 
-        $descriptionEN = $translator->translate($descriptionFR,'fr', 'en');
-        $descriptionDE = $translator->translate($descriptionFR,'fr', 'de');
+            $descriptionEN = $translator->translate($descriptionFR,'fr', 'en');
+            $descriptionDE = $translator->translate($descriptionFR,'fr', 'de');
+        } else {
+            $descriptionFR = $description;
+            $titleFR = $mod_title;
+
+            $titleEN = $mod_title;
+            $titleDE = $mod_title;
+
+            $descriptionEN = $descriptionFR;
+            $descriptionDE = $descriptionFR;
+        }
+
 
         $this->task('Création du fichier strings.lua', function () use ($name_mod, $titleFR, $titleEN, $titleDE, $descriptionFR, $descriptionEN, $descriptionDE) {
             $content = <<<LUA
