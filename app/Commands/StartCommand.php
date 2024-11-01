@@ -61,6 +61,11 @@ class StartCommand extends Command
         $this->call('mod:verify');
     }
 
+    public function testMod()
+    {
+        $this->call('mod:test');
+    }
+
     public function createLod()
     {
         $this->call('createlod');

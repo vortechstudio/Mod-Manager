@@ -6,3 +6,4 @@
 /builds
 /temp
 config.json
+/storages/logs/*.*
