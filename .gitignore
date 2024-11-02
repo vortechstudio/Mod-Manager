@@ -10,3 +10,4 @@ config.json
 tf2_modvalidator_report.html
 storage/logs/modmanager.log
 luac.out
+/mod_encrypted

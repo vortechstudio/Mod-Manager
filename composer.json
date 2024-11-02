@@ -17,6 +17,7 @@
     ],
     "require": {
         "php": "^8.2.0",
+        "illuminate/encryption": "^11.30",
         "illuminate/http": "^11.5",
         "illuminate/log": "^11.5",
         "laravel-zero/framework": "^11.0.0"
