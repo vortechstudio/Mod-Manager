@@ -17,7 +17,7 @@ class EditModInfoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'mod:edit-info';
+    protected $signature = 'mod:edit-info {mod_path}';
 
     /**
      * The console command description.
@@ -25,23 +25,14 @@ class EditModInfoCommand extends Command
      * @var string
      */
     protected $description = 'Edition des informations du mod';
-    protected $staging_path = '';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->getConfig();
-
-        $mods = $this->getMods();
-        if (empty($mods)) {
-            $this->error("Aucun mod trouvé dans le staging_area.");
-            return;
-        }
-        $selectedMod = $this->choice('Sélectionnez un mod à traiter :', $mods);
-
-        $this->menu($selectedMod);
+        $mod_path = $this->argument('mod_path');
+        $this->menu($mod_path);
     }
 
     private function menu($selectedMod)
@@ -68,16 +59,9 @@ class EditModInfoCommand extends Command
         };
     }
 
-    private function getConfig()
-    {
-        $config_file = getcwd()."/config.json";
-        $config = json_decode(file_get_contents($config_file), true);
-        $this->staging_path = $config['staging_path'];
-    }
-
     private function callStringLua($selectedMod)
     {
-        $modFolder = $this->staging_path. "/". $selectedMod;
+        $modFolder = $selectedMod;
         $stringsLuaPath = $modFolder.'/string.lua';
 
         if (!File::exists($stringsLuaPath)) {
@@ -90,7 +74,7 @@ class EditModInfoCommand extends Command
 
     private function callModLua($selectedMod)
     {
-        $modFolder = $this->staging_path. "/". $selectedMod;
+        $modFolder = $selectedMod;
         $stringsLuaPath = $modFolder.'/mod.lua';
 
         if (!File::exists($stringsLuaPath)) {
@@ -231,15 +215,6 @@ class EditModInfoCommand extends Command
             return File::put($this->callModLua($selectedMod), $updatedContent) !== false;
         });
         $this->menu($selectedMod);
-    }
-
-    private function getMods()
-    {
-        $mods = [];
-        foreach (File::directories($this->staging_path) as $modPath) {
-            $mods[] = basename($modPath);
-        }
-        return $mods;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Commands\Edit;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\File;
 use LaravelZero\Framework\Commands\Command;
 
 use function Laravel\Prompts\select;
@@ -23,26 +24,73 @@ class MenuEditModCommand extends Command
      */
     protected $description = 'Command description';
 
+    protected $staging_path = '';
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $this->getConfig();
+
+        $mods = $this->getMods();
+        if (empty($mods)) {
+            $this->error("Aucun mod trouvé dans le staging_area.");
+            return;
+        }
+        $selectedMod = $this->choice('Sélectionnez un mod à traiter :', $mods);
+
         $menu = select(
             label: 'Que souhaitez-vous faire ?',
             options: [
-                "Modifier les informations du mod",
+                "modify" => "Modifier les informations du mod",
+                "construct" => "Créer une nouvelle construction à partir d'un .mdl",
+                "compile" => "Préparer le mod à l'envoie sur les plateformes (Steam, Mod.io, Transportfever.net)",
+                //"encrypt" => "Crypter le mod",
+                //"decrypt" => "Decrypter le mod",
+                "retour" => "Retour au menu principal",
             ],
         );
 
+
+
         match($menu) {
-            "Modifier les informations du mod" => $this->editModInfo(),
+            "modify" => $this->editModInfo($this->staging_path.'/'.$selectedMod),
+            "construct" => $this->createConstruction($this->staging_path.'/'.$selectedMod),
+            "compile" => $this->compile($this->staging_path.'/'.$selectedMod),
+            "retour" => $this->call('start', ['--without-config']),
         };
     }
 
-    protected function editModInfo()
+    protected function editModInfo($selectedMod)
     {
-        $this->call('mod:edit-info');
+        $this->call('mod:edit-info', ["mod_path" => $selectedMod]);
+    }
+
+    protected function createConstruction($selectedMod)
+    {
+        $this->call('mod:create-construction', ["mod_path" => $selectedMod]);
+    }
+
+    protected function compile($selectedMod)
+    {
+        $this->call('mod:compile', ["mod_path" => $selectedMod]);
+    }
+
+    private function getConfig()
+    {
+        $config_file = getcwd()."/config.json";
+        $config = json_decode(file_get_contents($config_file), true);
+        $this->staging_path = $config['staging_path'];
+    }
+
+    private function getMods()
+    {
+        $mods = [];
+        foreach (File::directories($this->staging_path) as $modPath) {
+            $mods[] = basename($modPath);
+        }
+        return $mods;
     }
 
     /**

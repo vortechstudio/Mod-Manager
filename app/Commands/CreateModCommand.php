@@ -208,7 +208,7 @@ function data()
     }
 end
 LUA;
-        $filePath = $this->staging_path.'/'.$name_mod.'/string.lua';
+        $filePath = $this->staging_path.'/'.$name_mod.'/strings.lua';
         return File::put($filePath, $content) !== false;
 
         });
