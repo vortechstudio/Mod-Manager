@@ -123,7 +123,7 @@ class ConvertTextureCommand extends Command
             if ($conversionType === 'TGA -> DDS') {
                 $command = $this->getTgaToDdsCommand($file, $outputFile);
             } else {
-                $command = "\"{$this->magicCmd}\" convert \"$file\" \"$outputFile\"";
+                $command = "\"{$this->magicCmd}\" \"$file\" \"$outputFile\"";
             }
 
             if (exec($command, $output) === false) {
@@ -136,17 +136,38 @@ class ConvertTextureCommand extends Command
 
     private function getTgaToDdsCommand($inputFile, $outputFile)
     {
+        // Commande de base pour ImageMagick
         $command = "\"{$this->magicCmd}\" \"$inputFile\" -flip -define dds:mipmaps=13";
 
-        // Vérifie si le fichier a un canal alpha ou contient "normal" dans le nom
-        if (strpos($inputFile, 'normal') !== false) {
-            $command .= " -compress DXT5"; // Compression DXT5 pour normal maps
+        // Vérifie si l'image contient un canal alpha ou si c'est une normal map
+        if ($this->imageHasAlpha($inputFile) || strpos($inputFile, 'normal') !== false) {
+            $command .= " -compress DXT5"; // Compression DXT5 pour alpha ou normal maps
         } else {
             $command .= " -compress DXT1"; // Compression DXT1 pour les autres fichiers
         }
 
         return $command . " \"$outputFile\"";
     }
+
+    private function imageHasAlpha($inputFile)
+    {
+        // Utiliser la commande identify pour extraire les informations des canaux
+        $command = "\"{$this->magicCmd}\" identify -format \"%[channels]\" \"$inputFile\"";
+        $output = [];
+        $status = 0;
+
+        exec($command, $output, $status);
+
+        // Si la commande a réussi, vérifiez la présence du canal alpha
+        if ($status === 0 && isset($output[0])) {
+            $channels = strtolower(trim($output[0]));
+            return strpos($channels, 'a') !== false; // Vérifie si 'a' (alpha) est présent
+        }
+
+        // Si la commande échoue ou si aucun canal alpha n'est détecté
+        return false;
+    }
+
 
     private function deleteOriginalFiles($selectedFolder, $fileExtension)
     {

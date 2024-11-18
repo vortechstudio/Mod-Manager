@@ -18,7 +18,7 @@ class Translator
      * @return string Texte traduit.
      * @throws Exception
      */
-    public function translate($text, $sourceLang = 'fr', $targetLang = 'en')
+    public function translate(string $text, string $sourceLang = 'fr', string $targetLang = 'en'): string
     {
         $response = Http::withoutVerifying()->get("{$this->apiUrl}/{$sourceLang}/{$targetLang}/".urlencode($text));
 
