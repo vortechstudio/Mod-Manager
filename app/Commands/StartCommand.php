@@ -33,7 +33,7 @@ class StartCommand extends Command
         }
         $menu = select(
             label: 'Mod Manager '.config('app.version'),
-            options: ["Création de mod", "Editer un mod", "Conversion TGA/DDS", "Vérification du mod", "Test Du Mod (Béta !)", "Créer des Lods (Béta !)", "Lua Checker", "Quitter"],
+            options: ["Création de mod", "Editer un mod", "Conversion TGA/DDS", "Vérification du mod", "Test Du Mod (Béta !)", "Créer des Lods (Béta !)", "Lua Checker", "Générer un code MISSION", "Quitter"],
         );
 
         match ($menu) {
@@ -44,6 +44,7 @@ class StartCommand extends Command
             "Test Du Mod (Béta !)" => $this->testMod(),
             "Créer des Lods (Béta !)" => $this->createLod(),
             "Lua Checker" => $this->luaChecker(),
+            "Générer un code MISSION" => $this->generateCodeMission(),
             "Quitter" => exit(),
         };
     }
@@ -89,5 +90,10 @@ class StartCommand extends Command
     public function schedule(Schedule $schedule): void
     {
         // $schedule->command(static::class)->everyMinute();
+    }
+
+    private function generateCodeMission()
+    {
+        $this->call('mission:interactive');
     }
 }
