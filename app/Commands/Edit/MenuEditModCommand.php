@@ -48,6 +48,7 @@ class MenuEditModCommand extends Command
                 "compile" => "Préparer le mod à l'envoie sur les plateformes (Steam, Mod.io, Transportfever.net)",
                 "encrypt" => "Crypter le mod",
                 "decrypt" => "Decrypter le mod",
+                "clean" => "Nettoyer le mod (Texture)",
                 "retour" => "Retour au menu principal",
             ],
         );
@@ -60,6 +61,7 @@ class MenuEditModCommand extends Command
             "compile" => $this->compile($this->staging_path.'/'.$selectedMod),
             "encrypt" => $this->encrypt($this->staging_path.'/'.$selectedMod),
             "decrypt" => $this->decrypt($this->staging_path.'/'.$selectedMod),
+            "clean" => $this->clean($this->staging_path.'/'.$selectedMod),
             "retour" => $this->call('start', ['--without-config']),
         };
     }
@@ -87,6 +89,11 @@ class MenuEditModCommand extends Command
     protected function decrypt($selectedMod)
     {
         $this->call('mod:decrypt', ["mod_path" => $selectedMod]);
+    }
+
+    protected function clean(string $selectedMod)
+    {
+        $this->call('texture:clean', ["mod_path" => $selectedMod]);
     }
 
 
