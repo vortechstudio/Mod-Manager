@@ -29,6 +29,7 @@ class StartCommand extends Command
     public function handle()
     {
         if(!$this->option('without-config')) {
+            $this->call('updater');
             $this->call("initialize");
         }
         $menu = select(
