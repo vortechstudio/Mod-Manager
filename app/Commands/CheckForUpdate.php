@@ -3,7 +3,6 @@
 namespace App\Commands;
 
 use App\Services\Updater;
-use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
 class CheckForUpdate extends Command
@@ -53,13 +52,5 @@ class CheckForUpdate extends Command
         }
 
         return 0;
-    }
-
-    /**
-     * Define the command's schedule.
-     */
-    public function schedule(Schedule $schedule): void
-    {
-        // $schedule->command(static::class)->everyMinute();
     }
 }
