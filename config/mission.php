@@ -85,7 +85,7 @@ return [
                 ],
             ],
         ],
-        'RER H' => [
+        'Transilien H' => [
             'branches' => [
                 'persan-beaumont' => [
                     'outbound' => 'P',
@@ -97,7 +97,7 @@ return [
                 ],
             ],
         ],
-        'RER J' => [
+        'Transilien J' => [
             'branches' => [
                 'mantes-la-jolie' => [
                     'outbound' => 'M',
@@ -109,7 +109,7 @@ return [
                 ],
             ],
         ],
-        'RER K' => [
+        'Transilien K' => [
             'branches' => [
                 'crepy' => [
                     'outbound' => 'C',
@@ -117,7 +117,7 @@ return [
                 ],
             ],
         ],
-        'RER L' => [
+        'Transilien L' => [
             'branches' => [
                 'versailles-rd' => [
                     'outbound' => 'V',
@@ -129,7 +129,7 @@ return [
                 ],
             ],
         ],
-        'RER N' => [
+        'Transilien N' => [
             'branches' => [
                 'rambouillet' => [
                     'outbound' => 'R',
@@ -141,7 +141,7 @@ return [
                 ],
             ],
         ],
-        'RER U' => [
+        'Transilien U' => [
             'branches' => [
                 'versailles-chantiers' => [
                     'outbound' => 'C',
@@ -149,7 +149,7 @@ return [
                 ],
             ],
         ],
-        'RER V' => [
+        'Transilien V' => [
             'branches' => [
                 'verneuil' => [
                     'outbound' => 'V',
