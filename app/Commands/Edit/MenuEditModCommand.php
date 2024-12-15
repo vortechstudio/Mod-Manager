@@ -49,6 +49,7 @@ class MenuEditModCommand extends Command
                 "encrypt" => "Crypter le mod",
                 "decrypt" => "Decrypter le mod",
                 "clean" => "Nettoyer le mod (Texture)",
+                "dep" => "Gérez les dépendences",
                 "retour" => "Retour au menu principal",
             ],
         );
@@ -62,6 +63,7 @@ class MenuEditModCommand extends Command
             "encrypt" => $this->encrypt($this->staging_path.'/'.$selectedMod),
             "decrypt" => $this->decrypt($this->staging_path.'/'.$selectedMod),
             "clean" => $this->clean($this->staging_path.'/'.$selectedMod),
+            "dep" => $this->dependency($this->staging_path.'/'.$selectedMod),
             "retour" => $this->call('start', ['--without-config']),
         };
     }
@@ -119,5 +121,10 @@ class MenuEditModCommand extends Command
     public function schedule(Schedule $schedule): void
     {
         // $schedule->command(static::class)->everyMinute();
+    }
+
+    private function dependency(string $selectedMod)
+    {
+        $this->call('menu:dependency', ["mod_path" => $selectedMod]);
     }
 }
