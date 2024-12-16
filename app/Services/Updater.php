@@ -52,7 +52,7 @@ class Updater
                     if ($asset['name'] === $this->currentPharPath) {
                         return [
                             'version' => $latestVersion,
-                            'url' => $asset['browser_download_url']
+                            'download_url' => $asset['browser_download_url']
                         ];
                     }
                 }
