@@ -72,7 +72,7 @@ class VerifSyntaxLuaCommand extends Command
                 return true;
             }
         });
-
+        $this->call('start', ['--without-config']);
     }
 
     private function getMods($stagingPath)

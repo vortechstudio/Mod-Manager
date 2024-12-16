@@ -89,8 +89,7 @@ class InitializeCommand extends Command
     private function ImageMagickIsInstalled()
     {
         if(exec('magick --version', $output) === false) {
-            $this->error('Image Magick est introuvable. Tentative d\'installation interne !');
-            $this->call('imageMagick:install');
+            $this->error('Image Magick est introuvable. Utilisation des binaires de l\'application.');
         } else {
             $this->info('Image Magick est installé.');
         }

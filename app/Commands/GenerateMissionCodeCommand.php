@@ -38,6 +38,7 @@ class GenerateMissionCodeCommand extends Command
         $code = $generator->generate($line, $branch, $direction, $serviceType, $timeSlot);
 
         $this->info("Le code mission généré est : $code");
+        $this->call('start', ['--without-config']);
 
     }
 }

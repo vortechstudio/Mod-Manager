@@ -42,18 +42,15 @@ class CreateLodCommand extends Command
         // Validation des chemins
         if (!file_exists($fbxPath)) {
             $this->error("Le fichier FBX n'existe pas : {$fbxPath}");
-            return 1;
         }
         if (!is_dir($outputPath)) {
             $this->error("Le dossier de sortie n'existe pas : {$outputPath}");
-            return 1;
         }
 
         // Validation des niveaux de LOD
         $lodLevelsArray = array_map('trim', explode(',', $lodLevels));
         if (!$this->validateLodLevels($lodLevelsArray)) {
             $this->error("Les niveaux de réduction sont invalides. Assurez-vous d'entrer des pourcentages positifs séparés par des virgules.");
-            return 1;
         }
 
         $this->task("Création des niveaux de LOD pour le fichier FBX {$fbxPath}", function () use ($fbxPath, $outputPath, $lodLevelsArray) {
@@ -63,12 +60,11 @@ class CreateLodCommand extends Command
             exec($command, $output, $returnCode);
             if ($returnCode !== 0) {
                 $this->error("Erreur lors de la création des LOD :\n" . implode("\n", $output));
-                return false;
             }
 
             $this->info("Niveaux de LOD créés avec succès.");
-            return true;
         });
+        $this->call('start', ['--without-config']);
     }
 
     private function getConfig()

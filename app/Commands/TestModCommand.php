@@ -52,6 +52,7 @@ class TestModCommand extends Command
         $this->checkTextures($modPath);
         $this->checkConfigFiles($modPath);
         $this->checkOptimization($modPath);
+        $this->call('start', ['--without-config']);
     }
 
     private function getConfig()
