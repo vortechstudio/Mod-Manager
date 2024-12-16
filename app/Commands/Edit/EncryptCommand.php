@@ -39,6 +39,7 @@ class EncryptCommand extends Command
 
         // On copie le dossier de mod pour garder une trace local et ont inclue un fichier password qui contient le mot de passe encrypter Hash:Make
         $this->copyDirectoryOfBaseEncrypt($mod_path, $password);
+        $this->call('editmod');
     }
 
     protected function copyDirectoryOfBaseEncrypt($mod_path, $password)

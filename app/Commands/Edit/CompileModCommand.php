@@ -45,6 +45,7 @@ class CompileModCommand extends Command
         // Vérification et compilation du mod
         $this->compileMod($modPath);
         $this->info("Mod préparé pour le déploiement.");
+        $this->call('editmod');
     }
 
     protected function checkDependencies($modPath)

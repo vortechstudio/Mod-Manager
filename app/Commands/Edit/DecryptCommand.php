@@ -41,7 +41,7 @@ class DecryptCommand extends Command
             }
         });
         $this->verifyPassword($mod_path, $name_base);
-
+        $this->call('editmod');
 
     }
 

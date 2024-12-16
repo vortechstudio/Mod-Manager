@@ -16,5 +16,6 @@ class TextureCleanCommand extends Command
         $modPath = $this->argument('mod_path');
         $manager = new TextureManager($this);
         $manager->handleUnusedFiles($modPath);
+        $this->call('editmod');
     }
 }

@@ -43,6 +43,7 @@ class CreateConstructionCommand extends Command
             "ASSET_DEFAULT" => $this->createConstruction($mod_path, 'asset_default'),
             "ASSET_TRACK" => $this->createConstruction($mod_path, 'asset_track'),
         };
+        $this->call('editmod');
     }
 
     protected function createConstruction($mod_path, $type)
