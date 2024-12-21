@@ -32,11 +32,7 @@ class ConvertTextureCommand extends Command
     public function handle()
     {
         $this->getConfig();
-        if(exec('magick --version', $output) === false) {
-            $this->magicCmd = getcwd().'/bin/imagemagick/magick.exe';
-        } else {
-            $this->magicCmd = 'magick';
-        }
+        $this->magicCmd = getcwd().'/bin/imagemagick/magick.exe';
 
         $this->tgaCmd = getcwd().'/bin/aceit/aceit.exe';
         $conversionType = $this->choice('Quel type de conversion souhaitez-vous effectuer ?', ['TGA -> DDS', 'DDS -> TGA', 'ACE -> TGA'], 0);
