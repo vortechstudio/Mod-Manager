@@ -24,6 +24,7 @@ class ConvertTextureCommand extends Command
 
     protected $staging_path = '';
     protected $magicCmd = '';
+    protected $tgaCmd = '';
 
     /**
      * Execute the console command.
@@ -36,7 +37,9 @@ class ConvertTextureCommand extends Command
         } else {
             $this->magicCmd = 'magick';
         }
-        $conversionType = $this->choice('Quel type de conversion souhaitez-vous effectuer ?', ['TGA -> DDS', 'DDS -> TGA'], 0);
+
+        $this->tgaCmd = getcwd().'/bin/aceit/aceit.exe';
+        $conversionType = $this->choice('Quel type de conversion souhaitez-vous effectuer ?', ['TGA -> DDS', 'DDS -> TGA', 'ACE -> TGA'], 0);
 
         $mods = $this->getMods();
         if (empty($mods)) {
@@ -45,7 +48,7 @@ class ConvertTextureCommand extends Command
         }
         $selectedMod = $this->choice('Sélectionnez un mod à traiter :', $mods);
 
-        $fileExtension = $conversionType === 'TGA -> DDS' ? 'tga' : 'dds';
+        $fileExtension = $conversionType === 'TGA -> DDS' ? 'tga' : ('DDS -> TGA' ? 'dds' : 'ace');
         $foldersWithFiles = $this->getFoldersWithFiles($selectedMod, $fileExtension);
         if (empty($foldersWithFiles)) {
             $this->error("Aucun dossier contenant des fichiers .$fileExtension trouvé dans le mod sélectionné.");
@@ -122,8 +125,10 @@ class ConvertTextureCommand extends Command
 
             if ($conversionType === 'TGA -> DDS') {
                 $command = $this->getTgaToDdsCommand($file, $outputFile);
-            } else {
+            } elseif ($conversionType === 'DDS -> TGA') {
                 $command = "\"{$this->magicCmd}\" \"$file\" \"$outputFile\"";
+            } else {
+                $command = "\"{$this->tgaCmd}\" -d \"$file\" \"$outputFile\"";
             }
 
             if (exec($command, $output) === false) {

@@ -214,11 +214,4 @@ class TestModCommand extends Command
         return true;
     }
 
-    /**
-     * Define the command's schedule.
-     */
-    public function schedule(Schedule $schedule): void
-    {
-        // $schedule->command(static::class)->everyMinute();
-    }
 }
