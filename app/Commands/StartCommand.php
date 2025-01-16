@@ -34,13 +34,13 @@ class StartCommand extends Command
         }
         $menu = select(
             label: 'Mod Manager '.config('app.version'),
-            options: ["Création de mod", "Editer un mod", "Conversion TGA/DDS", "Vérification du mod", "Test Du Mod (Béta !)", "Créer des Lods (Béta !)", "Lua Checker", "Générer un code MISSION", "Quitter"],
+            options: ["Création de mod", "Editer un mod", "Conversion Textures", "Vérification du mod", "Test Du Mod (Béta !)", "Créer des Lods (Béta !)", "Lua Checker", "Générer un code MISSION", "Quitter"],
         );
 
         match ($menu) {
             "Création de mod" => $this->createMod(),
             "Editer un mod" => $this->editMod(),
-            "Conversion TGA/DDS" => $this->convert(),
+            "Conversion Textures" => $this->convert(),
             "Vérification du mod" => $this->verify(),
             "Test Du Mod (Béta !)" => $this->testMod(),
             "Créer des Lods (Béta !)" => $this->createLod(),
