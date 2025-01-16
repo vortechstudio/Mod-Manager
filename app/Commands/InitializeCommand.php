@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Process;
 use LaravelZero\Framework\Commands\Command;
 
 class InitializeCommand extends Command
@@ -88,10 +89,11 @@ class InitializeCommand extends Command
 
     private function ImageMagickIsInstalled()
     {
-        if(exec('magick --version', $output) === false) {
-            $this->error('Image Magick est introuvable. Utilisation des binaires de l\'application.');
-        } else {
+        $process = Process::run('magick --version');
+        if($process->successful()) {
             $this->info('Image Magick est installé.');
+        } else {
+            $this->error('Image Magick est introuvable. Utilisation des binaires de l\'application.');
         }
     }
 
