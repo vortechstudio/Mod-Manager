@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Process;
 use LaravelZero\Framework\Commands\Command;
 
 class TestModCommand extends Command
@@ -24,194 +25,141 @@ class TestModCommand extends Command
 
     protected $staging_path = '';
     protected $magicCmd = '';
+    protected array $errors = [];
 
     /**
      * Execute the console command.
      */
+
+    public function __construct()
+    {
+        parent::__construct();
+        $configFile = getcwd() . "/config.json";
+        if (!file_exists($configFile)) {
+            throw new \Exception('Configuration file not found.');
+        }
+
+        $config = json_decode(file_get_contents($configFile), true);
+        if (!isset($config['staging_path'])) {
+            throw new \Exception('Staging path not defined in configuration.');
+        }
+
+        $this->staging_path = $config['staging_path'];
+        $this->magicCmd = getcwd().'/bin/imagemagick/magick.exe';
+    }
+
     public function handle()
     {
-        $this->getConfig();
-        if(exec('magick --version', $output) === false) {
-            $this->magicCmd = getcwd().'/bin/imagemagick/magick.exe';
-        } else {
-            $this->magicCmd = 'magick';
-        }
-
         $mods = $this->getMods($this->staging_path);
         if (empty($mods)) {
-            $this->error("Aucun mod trouvé dans le dossier staging_area.");
-            return;
+            $this->error('No mods found in the staging area.');
+            return Command::FAILURE;
+        }
+        $mod = $this->choice('Selectionner un mod', $mods);
+        $this->info("Validating mod '{$mod}'...");
+
+        $this->validateStructure($mod);
+        $this->validateTextures($mod);
+        $this->validateConfig($mod);
+
+        if (!empty($this->errors)) {
+            $this->error("Validation completed with errors:");
+            foreach ($this->errors as $error) {
+                $this->error(" - {$error}");
+            }
+            return Command::FAILURE;
         }
 
-        // 3. Demander au moddeur de sélectionner un mod
-        $selectedMod = $this->choice('Sélectionnez un mod à vérifier :', $mods);
-
-        $modPath = "$this->staging_path/$selectedMod";
-        $this->info("Vérification du mod dans : $modPath");
-        $this->checkStructure($modPath);
-        $this->checkTextures($modPath);
-        $this->checkConfigFiles($modPath);
-        $this->checkOptimization($modPath);
-        $this->call('start', ['--without-config']);
+        $this->info('Validation completed successfully. No errors found.');
+        return Command::SUCCESS;
     }
 
-    private function getConfig()
-    {
-        $config_file = getcwd()."/config.json";
-        $config = json_decode(file_get_contents($config_file), true);
-        $this->staging_path = $config['staging_path'];
-    }
-
-    private function getMods($stagingPath)
+    private function getMods(mixed $staging_path)
     {
         $mods = [];
-        foreach (File::directories($stagingPath) as $modPath) {
+        foreach (File::directories($staging_path) as $modPath) {
             $mods[] = basename($modPath);
         }
         return $mods;
     }
 
-    private function checkStructure($path)
+    private function validateStructure(array|string $mod): void
     {
-        $this->task('Vérification de la structure du mod', function () use ($path) {
-            $expectedDirs = [
-                'res/models',
-                'res/textures',
-                'mod.lua'
-            ];
+        $modPath = $this->staging_path . DIRECTORY_SEPARATOR . $mod;
 
-            foreach ($expectedDirs as $dir) {
-                if (!File::exists("$path/$dir")) {
-                    $this->warn("Structure incorrecte : dossier/fichier manquant -> $dir");
-                    return false;
-                }
-            }
-            return true;
-        });
-    }
-
-    private function checkTextures($path)
-    {
-        $this->task('Vérification des textures', function () use ($path) {
-            $texturePath = realpath("$path/res/textures");
-
-            if (!$texturePath || !is_dir($texturePath)) {
-                $this->warn("Le dossier des textures n'existe pas ou est inaccessible : $path/res/textures");
-                return false;
-            }
-
-            $textures = [];
-            // Utilisation de RecursiveDirectoryIterator pour rechercher tous les .dds
-            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($texturePath));
-
-            foreach ($iterator as $file) {
-                if ($file->isFile() && $file->getExtension() === 'dds') {
-                    $textures[] = $file->getPathname();
-                }
-            }
-
-            if (empty($textures)) {
-                $this->warn("Aucune texture .dds trouvée dans : $texturePath");
-                return false;
-            }
-
-            foreach ($textures as $texture) {
-                $this->info("Vérification de la texture : $texture");
-
-                if (!$this->hasMipmaps($texture)) {
-                    $this->warn("La texture $texture n'a pas le nombre de mipmaps requis.");
-                    return false;
-                }
-
-                $size = filesize($texture) / (1024 * 1024); // Taille en Mo
-                if ($size > 5) {  // Limite de taille en MB
-                    $this->warn("La texture $texture est trop volumineuse (${size}MB).");
-                    return false;
-                }
-            }
-
-            return true;
-        });
-    }
-
-    public function checkConfigFiles($path)
-    {
-        $this->task("Vérification des fichiers de configuration", function () use ($path) {
-            $modFile = "$path/mod.lua";
-            if (!File::exists($modFile)) {
-                $this->warn("Fichier mod.lua manquant.");
-                return false;
-            } else {
-                $content = File::get($modFile);
-                if (!str_contains($content, 'name') || !str_contains($content, 'description')) {
-                    $this->warn("Le fichier mod.lua manque des informations de base (nom ou description).");
-                    return false;
-                }
-            }
-            return true;
-        });
-    }
-
-    protected function checkOptimization($path)
-    {
-        $this->task("Vérification des optimisations des modèles", function () use ($path) {
-            $modelPath = realpath("$path/res/models");
-
-            if (!$modelPath || !is_dir($modelPath)) {
-                $this->warn("Le dossier des modèles n'existe pas ou est inaccessible : $path/res/models");
-                return false;
-            }
-
-            $modelFiles = [];
-            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($modelPath));
-
-            foreach ($iterator as $file) {
-                if ($file->isFile() && $file->getExtension() === 'mdl') {
-                    $modelFiles[] = $file->getPathname();
-                }
-            }
-
-            if (empty($modelFiles)) {
-                $this->warn("Aucun fichier .mdl trouvé dans : $modelPath");
-                return false;
-            }
-
-            foreach ($modelFiles as $file) {
-                $content = File::get($file);
-                if (!str_contains($content, 'lod')) {
-                    $this->warn("Le fichier $file ne contient pas de configuration LOD.");
-                    return false;
-                }
-            }
-
-            return true;
-        });
-    }
-
-    protected function hasMipmaps($file)
-    {
-        // Une implémentation simple vérifiant les mipmaps d'une texture .dds
-        // Requiert l'installation d'une bibliothèque d'image comme Intervention Image
-        // Ici, nous simulons une vérification de mipmap.
-
-        // TODO: Implémenter la vérification réelle des mipmaps avec une bibliothèque adaptée
-        if (!file_exists($file)) {
-            $this->warn("Le fichier spécifié n'existe pas : $file");
-            return false;
-        }
-
-        $command = "$this->magicCmd identify -format '%n'".escapeshellarg($file);
-        if(exec($command, $output, $returnVar) === false) {
-            return false;
-        } else {
-            $numFrames = isset($output[0]) ? (int)$output[0] : 0;
-            if ($numFrames < 2) { // Généralement, 2 ou plus indique la présence de mipmaps
-                $this->warn("Le fichier $file ne contient pas assez de mipmaps.");
-                return false;
+        $requiredFolders = ['res', 'res/textures'];
+        foreach ($requiredFolders as $folder) {
+            $folderPath = $modPath . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $folder);
+            if (!is_dir($folderPath)) {
+                $this->errors[] = "Dossiers requis manquant: {$folder}";
             }
         }
+    }
 
-        return true;
+    private function validateTextures(array|string $mod)
+    {
+        $texturesPath = $this->staging_path . DIRECTORY_SEPARATOR . $mod . DIRECTORY_SEPARATOR . 'res' . DIRECTORY_SEPARATOR . 'textures';
+
+        if (!is_dir($texturesPath)) {
+            $this->errors[] = "Dossiers requis manquant: res/textures";
+            return;
+        }
+
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($texturesPath));
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $extension = strtolower($file->getExtension());
+                if ($extension !== 'dds') {
+                    $this->errors[] = "Format de texture invalide: {$file->getPathname()} not dds";
+                }
+
+                // Validate DDS properties
+                $this->validateDDS($file->getPathname());
+            }
+        }
+    }
+
+    private function validateDDS($getPathname): void
+    {
+        //dd($getPathname);
+        $command = "$this->magicCmd identify -format '%w:%h:%n' \"$getPathname\"";
+
+        $process = Process::run($command);
+
+        if(!$process->successful()) {
+            $this->errors[] = "Erreur lors de l'analyse de la texture: {$getPathname}";
+        }
+
+        $values = str_replace("'", "", $process->output());
+        $def = explode(':', $values);
+
+        if ($def[0] !== $def[1]) {
+            $this->errors[] = "Mauvais format de texture: {$getPathname}";
+        }
+
+        // Check if dimensions are a power of 2
+        if (($def[0] & ($def[0] - 1)) !== 0) {
+            $this->errors[] = "La dimension de la texture n'est pas une puissance de 2: {$getPathname}";
+        }
+
+        // Check minimum mipmap levels
+        if ((int)$def[2] < 1) {
+            $this->errors[] = "La texture n'à pas asset de mipmaps: {$getPathname}(".(int)$def[2].") pour 13";
+        }
+    }
+
+    private function validateConfig(array|string $mod)
+    {
+        $configPath = $this->staging_path . DIRECTORY_SEPARATOR . $mod . DIRECTORY_SEPARATOR . 'mod.lua';
+
+        if (!file_exists($configPath)) {
+            $this->errors[] = "Fichier requis manquant: mod.lua";
+        }
+
+        $content = file_get_contents($configPath);
+        if (strpos($content, 'name') === false || strpos($content, 'description') === false) {
+            $this->errors[] = "Les clef requise 'name' et 'description' sont absente du fichier 'mod.lua'";
+        }
     }
 
 }
