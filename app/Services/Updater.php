@@ -47,7 +47,7 @@ class Updater
 
         if (version_compare($latestVersion, $this->currentVersion, '>')) {
             //Chercher l'asset modmanager
-            if(isset($data['assets']) && is_array($data['assets'])) {
+            if (isset($data['assets']) && is_array($data['assets'])) {
                 foreach ($data['assets'] as $asset) {
                     if ($asset['name'] === $this->currentPharPath) {
                         return [
@@ -64,25 +64,34 @@ class Updater
 
     public function update(string $downloadUrl)
     {
-        $tmpFile = $this->currentPharPath.'.tmp';
+        $tmpFile = $this->currentPharPath . '.tmp';
 
-        $fileData = file_get_contents($downloadUrl);
+        // Télécharger la mise à jour
+        $fileData = @file_get_contents($downloadUrl);
         if (!$fileData) {
-            return null;
+            throw new \Exception("Erreur lors du téléchargement de la mise à jour.");
         }
 
-        if (file_put_contents($tmpFile, $fileData) === false) {
-            return false;
+        if (@file_put_contents($tmpFile, $fileData) === false) {
+            throw new \Exception("Impossible d'écrire le fichier temporaire.");
         }
 
-        // Remplace l’ancien fichier par le nouveau
-        if (!rename($tmpFile, $this->currentPharPath)) {
-            // Si échec, nettoyer le fichier tmp
+        // Sauvegarde de l'ancienne version
+        if (file_exists($this->currentPharPath)) {
+            $backupPath = $this->currentPharPath . '.bak';
+            if (!@rename($this->currentPharPath, $backupPath)) {
+                @unlink($tmpFile);
+                throw new \Exception("Impossible de sauvegarder l'ancienne version.");
+            }
+        }
+
+        // Remplacement par le fichier téléchargé
+        if (!@rename($tmpFile, $this->currentPharPath)) {
             @unlink($tmpFile);
-            return false;
+            throw new \Exception("Erreur lors de l'installation de la mise à jour.");
         }
 
-        // Donner les bons droits d’exécution (si nécessaire)
+        // Donner les droits d'exécution
         @chmod($this->currentPharPath, 0755);
 
         return true;
