@@ -93,7 +93,7 @@ class InitializeCommand extends Command
         if($process->successful()) {
             $this->info('Image Magick est installé.');
         } else {
-            $this->error('Image Magick est introuvable. Utilisation des binaires de l\'application.');
+            $this->info('Image Magick est introuvable. Utilisation des binaires de l\'application.');
         }
     }
 

@@ -125,12 +125,11 @@ class ConvertTextureCommand extends Command
             throw new \Exception("No files with the extension '{$sourceExtension}' found in '{$folder}'.");
         }
 
-        $this->info("Found files: " . implode(', ', $files));
-
         foreach ($files as $file) {
             $destinationFile = preg_replace("/\.{$sourceExtension}$/i", ".{$destinationExtension}", $file);
             try {
-                $this->convertFile($file, $destinationFile, $sourceExtension, str_replace('/', '\\', $destinationFile));
+                $this->info("Convertion de la texture: {$file} en {$destinationFile}");
+                $this->convertFile($file, $destinationFile, $sourceExtension, $destinationExtension);
             } catch (\Exception $e) {
                 $this->error("An error occurred during conversion: {$e->getMessage()}.");
             }
@@ -145,13 +144,15 @@ class ConvertTextureCommand extends Command
      */
     private function convertFile(string $source, string $destination, string $sourceExtension, string $destinationExtension)
     {
-        $command = "\"{$this->magicCmd}\" \"$source\" \"$destination\"";
+        $command = "\"{$this->magicCmd}\" \"$source\"";
 
         if ($destinationExtension === 'dds') {
             $hasAlpha = $this->checkAlphaChannel($source);
-            $compression = $hasAlpha ? 'DTX5' : 'DTX1';
-            $command .= " -flip -define dds:mipmaps=13 dds:compression={$compression}";
+            $compression = $hasAlpha ? 'DXT5' : 'DXT1';
+            $command .= " -flip -define dds:mipmaps=13 -compress {$compression}";
         }
+
+        $command .= " \"$destination\"";
 
         exec($command, $output, $returnVar);
 
