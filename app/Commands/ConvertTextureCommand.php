@@ -78,11 +78,14 @@ class ConvertTextureCommand extends Command
         try {
             $this->processConversion($mod, $folder, $sourceExtension, $destinationExtension, $deleteSource);
             $this->info('Conversion completed successfully.');
+            $this->call('start', ['--without-config']);
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $this->error("An error occurred during conversion: {$e->getMessage()}.");
             return Command::FAILURE;
         }
+
+
     }
 
 
@@ -127,14 +130,27 @@ class ConvertTextureCommand extends Command
 
         foreach ($files as $file) {
             $destinationFile = preg_replace("/\.{$sourceExtension}$/i", ".{$destinationExtension}", $file);
-            try {
-                $this->info("Convertion de la texture: {$file} en {$destinationFile}");
-                $this->convertFile($file, $destinationFile, $sourceExtension, $destinationExtension);
-            } catch (\Exception $e) {
-                $this->error("An error occurred during conversion: {$e->getMessage()}.");
-            }
+
+            $this->task("Conversion de la texture {$file} en {$destinationFile}", function () use ($file, $destinationFile, $sourceExtension, $destinationExtension) {
+                try {
+                    $this->convertFile($file, $destinationFile, $sourceExtension, $destinationExtension);
+                    return true;
+                } catch (\Exception $e) {
+                    $this->error("An error occurred during conversion: {$e->getMessage()}.");
+                    return false;
+                }
+            });
+
+
             if ($deleteSource) {
-                $this->deleteFile($file);
+                $this->task("Suppression de la texture original", function () use ($file) {
+                    try {
+                        $this->deleteFile($file);
+                        return true;
+                    } catch (\Exception $e) {
+                        return false;
+                    }
+                });
             }
         }
     }
