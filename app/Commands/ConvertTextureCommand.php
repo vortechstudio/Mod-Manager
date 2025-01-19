@@ -24,7 +24,7 @@ class ConvertTextureCommand extends Command
     protected $description = 'Command description';
 
     protected string $staging_path = '';
-    protected string $magicCmd = '';
+    protected string $nvidiaCmd = '';
     protected array $supportedConversions = [
         'tga_to_dds',
         'dds_to_tga',
@@ -46,7 +46,7 @@ class ConvertTextureCommand extends Command
         }
 
         $this->staging_path = $config['staging_path'];
-        $this->magicCmd = getcwd().'/bin/imagemagick/magick.exe';
+        $this->nvidiaCmd = getcwd().'/bin/nvidia/nvtt_export.exe';
     }
 
     /**
@@ -160,33 +160,13 @@ class ConvertTextureCommand extends Command
      */
     private function convertFile(string $source, string $destination, string $sourceExtension, string $destinationExtension)
     {
-        $command = "\"{$this->magicCmd}\" \"$source\"";
-
-        if ($destinationExtension === 'dds') {
-            $hasAlpha = $this->checkAlphaChannel($source);
-            $compression = $hasAlpha ? 'DXT5' : 'DXT1';
-            $command .= " -flip -define dds:mipmaps=13 -compress {$compression}";
-        }
-
-        $command .= " \"$destination\"";
+        $command = "\"{$this->nvidiaCmd}\" -f 23 --mips --save-flip-y \"$source\" -o \"$destination\"";
 
         exec($command, $output, $returnVar);
 
         if ($returnVar !== 0) {
             throw new \Exception('Conversion failed: ' . implode(PHP_EOL, $output));
         }
-    }
-
-    private function checkAlphaChannel(string $filePath)
-    {
-        $command = "\"{$this->magicCmd}\" identify -format \"%[channels]\" \"$filePath\"";
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            throw new \Exception('Failed to check alpha channel: ' . implode(PHP_EOL, $output));
-        }
-
-        return strpos(implode('', $output), 'a') !== false;
     }
 
     private function deleteFile(mixed $file)
