@@ -160,12 +160,10 @@ class ConvertTextureCommand extends Command
      */
     private function convertFile(string $source, string $destination, string $sourceExtension, string $destinationExtension)
     {
-        $command = "\"{$this->nvidiaCmd}\" -f 23 --mips --save-flip-y \"$source\" -o \"$destination\"";
+        $convert = Process::run("\"{$this->nvidiaCmd}\" -f 23 --mips --save-flip-y \"$source\" -o \"$destination\"");
 
-        exec($command, $output, $returnVar);
-
-        if ($returnVar !== 0) {
-            throw new \Exception('Conversion failed: ' . implode(PHP_EOL, $output));
+        if($convert->failed()) {
+            throw new \Exception("Erreur de convertion: ".$convert->command());
         }
     }
 
